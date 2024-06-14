@@ -11,5 +11,9 @@
       "src": "/(.*)",
       "dest": "/app.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "SUPPRESS_NO_CONFIG_WARNING": "true"
+  }
 }
