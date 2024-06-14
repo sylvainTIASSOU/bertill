@@ -3,8 +3,6 @@
         "host":"sql7.freemysqlhosting.net",
         "user":"sql7713937",
         "password":"hs5ZECSFiW",
-        "database":"sql7713937",
-        "timezone":"utc+5:30",
-        "charset":"utf8mb4"
+        "database":"sql7713937"
     }
 }
