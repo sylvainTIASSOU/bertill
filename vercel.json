@@ -11,8 +11,5 @@
       "src": "/(.*)",
       "dest": "/bin/www"
     }
-  ],
-  "env": {
-    "DATABASE_URL": "@database_url"
-  }
+  ]
 }
