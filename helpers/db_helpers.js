@@ -1,12 +1,12 @@
-var mysql = require('mysql');
-var config = require('config');
-var dbConfig = config.get('dbConfig');
-var helper = require('./helpers');
+const mysql = require('mysql');
+const config = require('config');
+const helper = require('./helpers');
 
-var db = mysql.createConnection(dbConfig);
+const dbConfig = config.get('dbConfig');
+let db = mysql.createConnection(dbConfig);
 
-if(config.has('optionalFeature.detail')) {
-    var detail = config.get('optionalFeature.detail');
+if (config.has('optionalFeature.detail')) {
+    const detail = config.get('optionalFeature.detail');
     helper.Dlog('config: ' + detail);
 }
 
@@ -34,26 +34,33 @@ function reconnect(connection, callback) {
     connection.on('error', (err) => {
         helper.Dlog('----- App connection crashed in DB Helper (' + helper.serverYYYYMMDDHHmmss() + ') -------');
 
-        if (err.code === "PROTOCOL_CONNECTION_LOST") {
-            helper.Dlog("/!\\ PROTOCOL_CONNECTION_LOST Cannot establish a connection with the database. /!\\ (" + err.code + ")");
-            reconnect(connection, callback);
-        } else if (err.code === "PROTOCOL_ENQUEUE_AFTER_QUIT") {
-            helper.Dlog("/!\\ PROTOCOL_ENQUEUE_AFTER_QUIT Cannot establish a connection with the database. /!\\ (" + err.code + ")");
-            reconnect(connection, callback);
-        } else if (err.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR") {
-            helper.Dlog("/!\\ PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR Cannot establish a connection with the database. /!\\ (" + err.code + ")");
-            reconnect(connection, callback);
-        } else if (err.code === "PROTOCOL_ENQUEUE_HANDSHAKE_TWICE") {
-            helper.Dlog("/!\\ PROTOCOL_ENQUEUE_HANDSHAKE_TWICE Cannot establish a connection with the database. /!\\ (" + err.code + ")");
-            reconnect(connection, callback);
-        } else if (err.code === "ECONNREFUSED") {
-            helper.Dlog("/!\\ ECONNREFUSED Cannot establish a connection with the database. /!\\ (" + err.code + ")");
-            reconnect(connection, callback);
-        } else if (err.code === "PROTOCOL_PACKETS_OUT_OF_ORDER") {
-            helper.Dlog("/!\\ PROTOCOL_PACKETS_OUT_OF_ORDER Cannot establish a connection with the database. /!\\ (" + err.code + ")");
-            reconnect(connection, callback);
-        } else {
-            throw err;
+        switch (err.code) {
+            case "PROTOCOL_CONNECTION_LOST":
+                helper.Dlog("/!\\ PROTOCOL_CONNECTION_LOST Cannot establish a connection with the database. /!\\ (" + err.code + ")");
+                reconnect(connection, callback);
+                break;
+            case "PROTOCOL_ENQUEUE_AFTER_QUIT":
+                helper.Dlog("/!\\ PROTOCOL_ENQUEUE_AFTER_QUIT Cannot establish a connection with the database. /!\\ (" + err.code + ")");
+                reconnect(connection, callback);
+                break;
+            case "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR":
+                helper.Dlog("/!\\ PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR Cannot establish a connection with the database. /!\\ (" + err.code + ")");
+                reconnect(connection, callback);
+                break;
+            case "PROTOCOL_ENQUEUE_HANDSHAKE_TWICE":
+                helper.Dlog("/!\\ PROTOCOL_ENQUEUE_HANDSHAKE_TWICE Cannot establish a connection with the database. /!\\ (" + err.code + ")");
+                reconnect(connection, callback);
+                break;
+            case "ECONNREFUSED":
+                helper.Dlog("/!\\ ECONNREFUSED Cannot establish a connection with the database. /!\\ (" + err.code + ")");
+                reconnect(connection, callback);
+                break;
+            case "PROTOCOL_PACKETS_OUT_OF_ORDER":
+                helper.Dlog("/!\\ PROTOCOL_PACKETS_OUT_OF_ORDER Cannot establish a connection with the database. /!\\ (" + err.code + ")");
+                reconnect(connection, callback);
+                break;
+            default:
+                throw err;
         }
     });
 }
@@ -63,12 +70,6 @@ module.exports = {
         if (db.state === 'authenticated' || db.state === "connected") {
             db.query(sqlQuery, args, (error, result) => {
                 return callback(error, result);
-            });
-        } else if (db.state === "protocol_error") {
-            reconnect(db, () => {
-                db.query(sqlQuery, args, (error, result) => {
-                    return callback(error, result);
-                });
             });
         } else {
             reconnect(db, () => {
